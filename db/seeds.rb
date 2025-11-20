@@ -7,19 +7,34 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
-Movie.destroy_all
-puts "destroys everything"
+require 'httparty'
 
-List.destroy_all
-puts "destroys everything"
-
+puts "Cleaning database..."
 Bookmark.destroy_all
-puts "destroys everything"
+List.destroy_all
+Movie.destroy_all
+puts "Destroyed all records"
 
-movie_1 = Movie.create(title: "Wonder Woman 1984", overview: "Wonder Woman comes into conflict with the Soviet Union during the Cold War in the 1980s", poster_url: "https://image.tmdb.org/t/p/original/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg", rating: 6.9)
-Movie.create(title: "The Shawshank Redemption", overview: "Framed in the 1940s for double murder, upstanding banker Andy Dufresne begins a new life at the Shawshank prison", poster_url: "https://image.tmdb.org/t/p/original/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg", rating: 8.7)
-Movie.create(title: "Titanic", overview: "101-year-old Rose DeWitt Bukater tells the story of her life aboard the Titanic.", poster_url: "https://image.tmdb.org/t/p/original/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg", rating: 7.9)
-Movie.create(title: "Ocean's Eight", overview: "Debbie Ocean, a criminal mastermind, gathers a crew of female thieves to pull off the heist of the century.", poster_url: "https://image.tmdb.org/t/p/original/MvYpKlpFukTivnlBhizGbkAe3v.jpg", rating: 7.0)
+API_KEY = "8b9f4785166d2c241b0ec5854f091544"
 
-list_1 = List.create!(name: "Dramma")
-Bookmark.create!(comment: "This created by Axel", movie_id: movie_1.id, list_id: list_1.id)
+# Fetch top rated movies from TMDB
+url = "https://api.themoviedb.org/3/movie/top_rated?api_key=#{API_KEY}"
+response = HTTParty.get(url)
+movies = response["results"]
+
+puts "Creating movies..."
+movies.each do |movie|
+  Movie.create!(
+    title: movie["title"],
+    overview: movie["overview"],
+    poster_url: "https://image.tmdb.org/t/p/original#{movie['poster_path']}",
+    rating: movie["vote_average"]
+  )
+  puts "Created movie: #{movie['title']}"
+end
+
+puts "Creating lists..."
+List.create!(name: "My Favorites")
+List.create!(name: "Action")
+List.create!(name: "Drama")
+puts "Lists created!"

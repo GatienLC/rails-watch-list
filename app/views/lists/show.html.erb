@@ -15,7 +15,7 @@
             <h5 class="card-title"><%= movie.title %></h5>
             <p class="card-text"><%= movie.overview %></p>
             <p class="card-text mt-auto"><small class="text-muted">Rating: <%= movie.rating %></small></p>
-            <%= link_to "Remove", bookmark_path(bookmark),
+            <%= link_to "Remove", list_bookmark_path(@list, bookmark),
               data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
               class: "btn btn-sm mt-2" %>
           </div>
